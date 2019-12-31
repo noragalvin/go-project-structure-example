@@ -1,8 +1,8 @@
 package http
 
-import(
-	"net/http"
+import (
 	"encoding/json"
+	"net/http"
 )
 
 // Message ...

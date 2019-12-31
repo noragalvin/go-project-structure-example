@@ -2,7 +2,7 @@ package handler
 
 import (
 	"gemtracker/driver"
-	"gemtracker/internal/handler/http"
+	"gemtracker/internal/modules/todos/handler/http"
 
 	"github.com/gorilla/mux"
 )

@@ -3,7 +3,7 @@ package services
 import (
 	"gemtracker/driver"
 	"gemtracker/internal/models"
-	"gemtracker/internal/repositories"
+	"gemtracker/internal/modules/todos/repositories"
 )
 
 // NewSQLPostRepo retunrs implement of post repository interface
@@ -45,3 +45,4 @@ func (instance *todoImpl) Delete(id int64) (bool, error) {
 	instance.database.Conn.Delete(&todo)
 	return true, nil
 }
+ 

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"gemtracker/driver"
 	"gemtracker/internal/configs"
-	"gemtracker/internal/handler"
+	todoHandler "gemtracker/internal/modules/todos/handler"
 	"log"
 	"net/http"
 
@@ -17,7 +17,7 @@ func startHTTP(db *gorm.DB, port string) error {
 	database := driver.DatabaseWrapper(db)
 
 	routes := mux.NewRouter()
-	handler.RegisterHTTP(database, routes)
+	todoHandler.RegisterHTTP(database, routes)
 
 	corsOptions := cors.Options{
 		AllowOriginFunc:  func(origin string) bool { return true },

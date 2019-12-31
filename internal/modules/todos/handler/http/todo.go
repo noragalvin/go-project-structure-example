@@ -4,8 +4,8 @@ import (
 	"gemtracker/driver"
 	"net/http"
 
-	"gemtracker/internal/repositories"
-	"gemtracker/internal/services"
+	"gemtracker/internal/modules/todos/repositories"
+	"gemtracker/internal/modules/todos/services"
 
 	"github.com/gorilla/mux"
 )
