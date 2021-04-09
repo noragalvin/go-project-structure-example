@@ -2,7 +2,7 @@ package driver
 
 import (
 	"fmt"
-	"gemtracker/internal/models"
+	"gempages-admin-server/src/models"
 	"os"
 
 	"github.com/jinzhu/gorm"

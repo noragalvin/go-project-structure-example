@@ -1,0 +1,35 @@
+version: "3.4"
+
+services:
+  app:
+    container_name: gempages-admin-server
+    build:
+      context: .
+      dockerfile: ./build/docker/app/Dockerfile
+    working_dir: /app
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+    ports:
+      - 8000:8000
+    depends_on:
+      - database
+      # - redis
+  database:
+    container_name: postgres
+    image: "postgres:12.6-alpine"
+    volumes:
+      - pgdata:/var/lib/postgres
+    environment:
+      - POSTGRES_DB=gempages-admin-server
+      - POSTGRES_PASSWORD=secret
+    ports:
+      - 54321:5432
+  # redis:
+  #   container_name: redis
+  #   image: redis:5.0-alpine
+  #   ports:
+  #     - 6379:6379
+volumes:
+  pgdata:

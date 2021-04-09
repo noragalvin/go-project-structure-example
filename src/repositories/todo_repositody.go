@@ -1,7 +1,7 @@
 package repositories
 
 import (
-	"gemtracker/internal/models"
+	"gempages-admin-server/src/models"
 )
 
 type TodoRepository interface {

@@ -1,7 +1,7 @@
 package middleware
 
 import (
-	"gemtracker/pkg/helpers"
+	"gempages-admin-server/src/pkg/helpers"
 	"net/http"
 	"strings"
 )
