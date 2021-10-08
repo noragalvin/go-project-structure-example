@@ -1,7 +1,7 @@
 package app
 
 import (
-	"go-project-structure-example/internal/utils/logger"
+	"ecommerce-integrations/internal/utils/logger"
 	"net/http"
 
 	"github.com/gin-gonic/gin"

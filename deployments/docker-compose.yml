@@ -1,0 +1,64 @@
+version: "3.4"
+
+services:
+  woo_app:
+    container_name: go_woo_app
+    build:
+      context: ../
+      dockerfile: ./deployments/docker/app/Woo.Dockerfile
+      args:
+        - github_user=${GITHUB_USER}
+        - github_token=${GITHUB_TOKEN}
+    working_dir: /app
+    volumes:
+      - ../:/app
+    env_file:
+      - ../.env
+    ports:
+      - 3001:3000
+    depends_on:
+      - database
+      - redis
+  shopify_app:
+    container_name: go_shopify_app
+    build:
+      context: ../
+      dockerfile: ./deployments/docker/app/Shopify.Dockerfile
+      args:
+        - github_user=${GITHUB_USER}
+        - github_token=${GITHUB_TOKEN}
+    working_dir: /app
+    volumes:
+      - ../:/app
+    env_file:
+      - ../.env
+    ports:
+      - 3001:3000
+    depends_on:
+      - database
+      - redis
+  database:
+    container_name: postgres_integrations
+    image: "postgres:12.6-alpine"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - pgbackups:/pgbackups
+    environment:
+      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - PGDATA=/var/lib/postgresql/data/db
+    ports:
+      - 54321:5432
+  redis:
+    container_name: redis_integrations
+    image: redis:5.0-alpine
+    ports:
+      - 63791:6379
+volumes:
+  pgdata:
+  pgbackups:
+
+networks:
+  default:
+    external:
+      name: es-hs

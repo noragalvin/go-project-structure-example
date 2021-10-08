@@ -1,20 +1,24 @@
 package main
 
 import (
-	"go-project-structure-example/driver"
-	"go-project-structure-example/internal/app/woocommerce/routes"
-	"go-project-structure-example/internal/configs"
-	"go-project-structure-example/internal/utils/e"
-	"go-project-structure-example/internal/utils/logger"
+	"ecommerce-integrations/driver"
+	authHttp "ecommerce-integrations/internal/app/woocommerce/modules/auth/delivery/http"
+	productHttp "ecommerce-integrations/internal/app/woocommerce/modules/product/delivery/http"
+	todoHttp "ecommerce-integrations/internal/app/woocommerce/modules/todo/delivery/http"
+
+	"ecommerce-integrations/internal/configs"
+	"ecommerce-integrations/internal/utils/logger"
 	"log"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
+
+	"ecommerce-integrations/internal/utils/constants"
 )
 
-func startHTTP(db *gorm.DB, port string) {
-	database := driver.DatabaseWrapper(db)
+func startHTTP(db *gorm.DB, dbOS *gorm.DB, port string) {
+	database := driver.DatabaseWrapper(db, dbOS)
 
 	r := gin.Default()
 
@@ -44,7 +48,7 @@ func startHTTP(db *gorm.DB, port string) {
 				"message": err,
 			})
 		}
-		c.AbortWithStatus(e.ERROR)
+		c.AbortWithStatus(constants.ERROR)
 	}))
 
 	r.GET("/panic", func(c *gin.Context) {
@@ -52,7 +56,13 @@ func startHTTP(db *gorm.DB, port string) {
 		panic("foo")
 	})
 
-	routes.InitAPIWooCommerce(r.Group("/api"), database)
+	baseRouter := r.Group("")
+	apiRouter := r.Group("api")
+
+	productHttp.InitAPIWooCommerceProduct(apiRouter, database)
+	todoHttp.InitAPIWooCommerceTodo(apiRouter, database)
+	authHttp.InitAPIWooCommerceAuth(baseRouter, database)
+
 	// TODO: do same with api v2
 	// routers.InitHome(r.Group("/api/v2"))
 
@@ -60,7 +70,8 @@ func startHTTP(db *gorm.DB, port string) {
 }
 
 func main() {
-	if err := configs.Init(); err != nil {
+	err := configs.InitWooConfigs()
+	if err != nil {
 		log.Panicln(err)
 	}
 
@@ -68,7 +79,7 @@ func main() {
 
 	logger.Logger.Info(config)
 
-	db := driver.OpenDatabase(&driver.ConnectionInfo{
+	db := driver.OpenDatabaseForWoo(&driver.ConnectionInfo{
 		User:     config.Database.User,
 		Password: config.Database.Password,
 		Host:     config.Database.Host,
@@ -76,7 +87,15 @@ func main() {
 		Name:     config.Database.Name,
 	})
 
+	dbOS := driver.OpenDatabaseForOnlineStore((&driver.ConnectionInfo{
+		User:     config.DatabaseOnlineStore.User,
+		Password: config.DatabaseOnlineStore.Password,
+		Host:     config.DatabaseOnlineStore.Host,
+		Port:     config.DatabaseOnlineStore.Port,
+		Name:     config.DatabaseOnlineStore.Name,
+	}))
+
 	// defer db.Close()
 
-	startHTTP(db, config.HTTP.Port)
+	startHTTP(db, dbOS, config.HTTP.Port)
 }

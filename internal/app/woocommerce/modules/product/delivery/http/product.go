@@ -1,36 +1,30 @@
 package http
 
 import (
-	"go-project-structure-example/driver"
-	"go-project-structure-example/internal/app/custom_types"
-	"go-project-structure-example/internal/app/woocommerce/modules/product/repository"
-	"go-project-structure-example/internal/app/woocommerce/modules/product/usecase"
-	"go-project-structure-example/internal/utils/app"
-	"go-project-structure-example/internal/utils/e"
-	"go-project-structure-example/pkg/helpers"
+	"ecommerce-integrations/driver"
+	"ecommerce-integrations/internal/app/custom_types"
+	"ecommerce-integrations/internal/app/woocommerce/modules/product/repository"
+	"ecommerce-integrations/internal/app/woocommerce/modules/product/usecase"
+	"ecommerce-integrations/internal/utils/app"
+	"ecommerce-integrations/internal/utils/constants"
+	"ecommerce-integrations/pkg/helpers"
 
 	"github.com/gin-gonic/gin"
 )
 
-type ProductHandler interface {
-	GenerateProductsFaker(c *gin.Context)
-	GetProductList(c *gin.Context)
-	GetProductById(c *gin.Context)
-}
-
-type productHandler struct {
+type ProductHandler struct {
 	productUseCase usecase.ProductUseCase
 }
 
 func NewProductHandler(db *driver.Database) ProductHandler {
 	pRepo := repository.NewProductRepository(db)
 	pUseCase := usecase.NewProductUseCase(pRepo)
-	return &productHandler{
+	return ProductHandler{
 		productUseCase: pUseCase,
 	}
 }
 
-func (this *productHandler) GetProductById(c *gin.Context) {
+func (instance *ProductHandler) GetProductById(c *gin.Context) {
 	app := app.Gin{C: c}
 
 	idParam := c.Param("id")
@@ -39,16 +33,16 @@ func (this *productHandler) GetProductById(c *gin.Context) {
 
 	if err != nil {
 		app.BadRequest(gin.H{
-			"status_code": e.INVALID_PARAMS,
+			"status_code": constants.INVALID_PARAMS,
 		})
 		return
 	}
 
-	product, err := this.productUseCase.GetProductByID(id, nil)
+	product, err := instance.productUseCase.GetProductByID(id, nil)
 
 	if err != nil {
 		app.BadRequest(gin.H{
-			"status_code": e.INVALID_PARAMS,
+			"status_code": constants.INVALID_PARAMS,
 		})
 		return
 	}
@@ -57,7 +51,7 @@ func (this *productHandler) GetProductById(c *gin.Context) {
 	}))
 }
 
-func (this *productHandler) GetProductList(c *gin.Context) {
+func (instance *ProductHandler) GetProductList(c *gin.Context) {
 	app := app.Gin{C: c}
 
 	offsetQuery := c.DefaultQuery("offset", "0")
@@ -67,7 +61,7 @@ func (this *productHandler) GetProductList(c *gin.Context) {
 
 	if err != nil {
 		app.BadRequest(gin.H{
-			"status_code": e.INVALID_PARAMS,
+			"status_code": constants.INVALID_PARAMS,
 		})
 		return
 	}
@@ -76,7 +70,7 @@ func (this *productHandler) GetProductList(c *gin.Context) {
 
 	if err != nil {
 		app.BadRequest(gin.H{
-			"status_code": e.INVALID_PARAMS,
+			"status_code": constants.INVALID_PARAMS,
 		})
 		return
 	}
@@ -86,11 +80,11 @@ func (this *productHandler) GetProductList(c *gin.Context) {
 		Limit:  limit,
 	}
 
-	products, err := this.productUseCase.GetProducts(paginate)
+	products, err := instance.productUseCase.GetProducts(paginate)
 
 	if err != nil {
 		app.BadRequest(gin.H{
-			"status_code": e.INVALID_PARAMS,
+			"status_code": constants.INVALID_PARAMS,
 		})
 		return
 	}
@@ -100,7 +94,7 @@ func (this *productHandler) GetProductList(c *gin.Context) {
 	}))
 }
 
-func (this *productHandler) GenerateProductsFaker(c *gin.Context) {
+func (instance *ProductHandler) GenerateProductsFaker(c *gin.Context) {
 	app := app.Gin{C: c}
 
 	number := c.DefaultQuery("n", "10")
@@ -109,12 +103,12 @@ func (this *productHandler) GenerateProductsFaker(c *gin.Context) {
 
 	if err != nil {
 		app.BadRequest(gin.H{
-			"status_code": e.INVALID_PARAMS,
+			"status_code": constants.INVALID_PARAMS,
 		})
 		return
 	}
 
-	products, err := this.productUseCase.GenerateProducts(n)
+	products, err := instance.productUseCase.GenerateProducts(n)
 	if err != nil {
 		app.Error(err.Error())
 		return
